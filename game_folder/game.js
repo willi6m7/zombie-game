@@ -21,5 +21,3 @@ const config = {
 };
 
 const game = new Phaser.Game(config);
-
-//variables go here (let x = y, etc.)
