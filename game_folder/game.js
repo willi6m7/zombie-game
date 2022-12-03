@@ -1,23 +1,14 @@
-const config = {
-    type: Phaser.AUTO,
-    parent: 'game',
-    width: 800,
-    height: 640,
-    scale: {
-        mode: Phaser.Scale.RESIZE,
-        autoCenter: Phaser.Scale.CENTER_BOTH
-    },
-    scene: {
-        preload,
-        create,
-        update
-    },
+var config = {
+    width: 256,
+    height: 272,
+    backgroundColor: 0x000000,
+    scene: [MainMenu, Scene1],
+    pixelArt: true,
     physics: {
-        default: 'arcade',
-        arcade: {
-            gravity: false
+        default: "arcade",
+        arcade:{
+            debug: false
         }
     }
-};
-
-const game = new Phaser.Game(config);
+}
+var game = new Phaser.Game(config);
