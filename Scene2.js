@@ -4,6 +4,7 @@ class Scene2 extends Phaser.Scene {
     }
 
     create() {
+        
         //Adds the background image
         this.background = this.add.tileSprite(0, 0, config.width, config.height, "background");
         this.background.setOrigin(0, 0);
@@ -23,6 +24,17 @@ class Scene2 extends Phaser.Scene {
         this.physics.world.setBoundsCollision();
         player.setCollideWorldBounds(true);
         this.crosshair.setCollideWorldBounds(true);
+ 
+
+        this.zombies = this.physics.add.group();
+        this.timerEvent();
+        this.triggerTimer = this.time.addEvent({
+            callback: this.timerEvent,
+            callbackScope: this,
+            delay: 15000, // 1000 = 1 second
+            loop: true
+        });
+        
 
         game.canvas.addEventListener('mousedown', function () {
             game.input.mouse.requestPointerLock();
@@ -59,10 +71,30 @@ class Scene2 extends Phaser.Scene {
     update() {
         // Rotates player to face towards reticle
         player.rotation = Phaser.Math.Angle.Between(player.x, player.y, this.crosshair.x, this.crosshair.y);
+
         
         this.movePlayerManager();
 
         this.constrainCrosshair(this.crosshair);
+        
+        this.zombiesMove(this);
+    }
+    timerEvent() {
+        var xAxis = Math.random(Math.floor(500));
+        var yAxis = Math.random(Math.floor(500));
+        var zombie = this.physics.add.sprite(16, 16, "zombie");
+        zombie.setScale(0.2);
+        zombie.play("zombieWalk");
+        this.physics.world.enableBody(zombie);
+        this.zombies.add(zombie);
+        
+    }
+    zombiesMove (scene) {
+        this.zombies.children.iterate(function(child){
+            scene.physics.moveToObject(child, player);
+            child.rotation = Phaser.Math.Angle.Between(child.x, child.y, player.x, player.y);
+            child.flipX = child.x < player.x;
+        });
     }
     movePlayerManager() {
         player.setVelocity(0);
