@@ -9,11 +9,18 @@ class Scene2 extends Phaser.Scene {
         this.background = this.add.tileSprite(0, 0, config.width, config.height, "background");
         this.background.setOrigin(0, 0);
 
+        //Ammo counter HUD
+        ammoScoreCounter = this.add.image(10, 10, 'status');
+        ammoScoreCounterText = this.add.text(30, 0, '');
+
         //Creates player in center of canvas, then decreases the scale of the player
         player = this.physics.add.sprite(config.width / 2, config.height / 2, "player");
         player.setScale(0.15);
 
         playerBullets = this.physics.add.group({ classType: Bullet, runChildUpdate: true });
+        ammoAmount = 10;
+
+        this.r = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
 
         //Creates the crosshair, positioning it to the right of the player
         this.crosshair = this.physics.add.sprite(config.width / 2 + 64, config.height / 2, "crosshair");
@@ -45,18 +52,34 @@ class Scene2 extends Phaser.Scene {
                 game.input.mouse.releasePointerLock();
         }, 0, this);
 
+        //HUD
+        ammoScoreCounter.setDataEnabled();
+
+        ammoScoreCounter.data.set('ammo', ammoAmount);
+        ammoScoreCounter.data.set('score', 0);
+        
+        ammoScoreCounterText.setText([
+            'Ammo: ' + ammoScoreCounter.data.get('ammo'),
+            'Score: ' + ammoScoreCounter.data.get('score')
+        ]);
+
         //fire bullet
         this.input.on('pointerdown', function (pointer, time, lastFired) {
-            if (player.active == false)
+            if (player.active == false || ammoScoreCounter.data.get('ammo') == 0)
                 return;
+
+            if (reloading == true)
+                return;
+                
     
             // Get bullet from bullets group
             var bullet = playerBullets.get().setActive(true).setVisible(true);
     
             if (bullet)
             {
+                ammoScoreCounter.data.set('ammo', ammoAmount -= 1);
                 bullet.fire(player, this.crosshair);
-                this.physics.add.collider(enemy, bullet, enemyHitCallback);
+                //this.physics.add.collider(enemy, bullet, enemyHitCallback);
             }
         }, this);
 
@@ -67,12 +90,27 @@ class Scene2 extends Phaser.Scene {
                 this.crosshair.y += pointer.movementY;
             }
         }, this);
+
+        // Reload functionality
+        this.input.keyboard.on('keydown_R', function (event) {
+            reloading = true;
+            reloadTimer = this.time.delayedCall(1000, reloadEvent, [], this);
+        }, this);
+
+        
+
+
     }
+
+    
+
     update() {
         // Rotates player to face towards reticle
         player.rotation = Phaser.Math.Angle.Between(player.x, player.y, this.crosshair.x, this.crosshair.y);
-
-        
+        ammoScoreCounterText.setText([
+            'Ammo: ' + ammoScoreCounter.data.get('ammo'),
+            'Score: ' + ammoScoreCounter.data.get('score')
+        ]);
         this.movePlayerManager();
 
         this.constrainCrosshair(this.crosshair);
@@ -127,3 +165,4 @@ class Scene2 extends Phaser.Scene {
             crosshair.y = player.y - config.width;
     }
 }
+
