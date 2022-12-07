@@ -1,14 +1,16 @@
 var gameSettings = {
     playerSpeed: 130,
+    zombieSpeed: 35,
     maxPowerups: 2,
     powerUpVel: 50,
+    spawnTime: 1500
   }
   
   var config = {
     width: 500,
     height: 300,
     backgroundColor: 0x000000,
-    scene: [Scene1, Scene2],
+    scene: [Scene1, Scene2, Scene3],
     pixelArt: true,
     physics: {
       default: "arcade",
@@ -20,6 +22,7 @@ var gameSettings = {
   }
   
   var player = null;
+  var killer = null;
   var healthpoints = null;
   var crosshair = null;
   var moveKeys = null;

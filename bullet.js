@@ -10,7 +10,7 @@ class Bullet extends Phaser.GameObjects.Sprite{
         this.direction = 0;
         
         this.setSize(12, 12, true);
-        
+        this.setScale(0.8);
     }
 
     // Fires a bullet from the player to the reticle
