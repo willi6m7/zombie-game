@@ -26,6 +26,9 @@ var gameSettings = {
   var playerBullets = null;
   var enemyBullets = null;
   var time = 0;
+  var zombieAmount = 5;
+  var zombieMinSpeed = 5;
+  var zombieMaxSpeed = 5;
   var ammoAmount = null;
   var ammoScoreCounter = null;
   var ammoScoreCounterText = null;
@@ -36,5 +39,5 @@ var gameSettings = {
     ammoScoreCounter.data.set('ammo', ammoAmount = 10);
     reloading = false;
   }
-
+  
   var game = new Phaser.Game(config);
