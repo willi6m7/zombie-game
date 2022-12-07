@@ -19,5 +19,12 @@ var gameSettings = {
     }
   }
   
+  var player = null;
+  var healthpoints = null;
+  var crosshair = null;
+  var moveKeys = null;
+  var playerBullets = null;
+  var enemyBullets = null;
+  var time = 0;
   
   var game = new Phaser.Game(config);
