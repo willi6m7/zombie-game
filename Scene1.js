@@ -5,6 +5,7 @@ class Scene1 extends Phaser.Scene {
   
     preload(){
       this.load.image("background", "assets/images/background.png");
+      this.load.image("YouDied", "assets/images/You died.png");
       //
       this.load.spritesheet("player", "assets/spritesheets/soldier/walk/survivor-move_rifle_0.png",{
         frameWidth: 313,
