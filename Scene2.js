@@ -33,7 +33,8 @@ class Scene2 extends Phaser.Scene {
             {up:Phaser.Input.Keyboard.KeyCodes.W,
             down:Phaser.Input.Keyboard.KeyCodes.S,
             left:Phaser.Input.Keyboard.KeyCodes.A,
-            right:Phaser.Input.Keyboard.KeyCodes.D});
+            right:Phaser.Input.Keyboard.KeyCodes.D,
+            reload:Phaser.Input.Keyboard.KeyCodes.R});
         this.physics.world.setBoundsCollision();
         player.setCollideWorldBounds(true);
         this.crosshair.setCollideWorldBounds(true);
@@ -103,19 +104,7 @@ class Scene2 extends Phaser.Scene {
             }
         }, this);
         player.play("soldierWalk");
-
-        // Reload functionality
-        this.input.keyboard.on('keydown_R', function (event) {
-            reloading = true;
-            reloadTimer = this.time.delayedCall(1000, reloadEvent, [], this);
-        }, this);
-
-        
-
-
     }
-
-    
 
     update() {
         // Rotates player to face towards reticle
@@ -133,6 +122,8 @@ class Scene2 extends Phaser.Scene {
         
         this.zombiesMove(this);
         this.updatePlayerHitbox();
+
+        this.reloadManager();
     }
     updatePlayerHitbox() {
         if(this.crosshair.x < player.x) {
@@ -231,7 +222,32 @@ class Scene2 extends Phaser.Scene {
         }
     }
 
-    
+    reloadManager(){
+        if(player.active){
+            if(pads.length > 0){
+                for(var i = 0; i < pads.length; i++){
+                    var gamepad = pads[i];
+                    if(this.cursorKeys.reload.isDown || gamepad.X){
+                        reloading = true;
+                        reloadTimer = this.time.delayedCall(1000, reloadEvent, [], this);
+                    }
+                }
+                
+            }else{
+                if(this.cursorKeys.reload.isDown){
+                    reloading = true;
+                    reloadTimer = this.time.delayedCall(1000, reloadEvent, [], this);
+                }
+            }
+        }
+        
+
+
+        // this.input.keyboard.on('keydown_R', function (event) {
+        //     reloading = true;
+        //     reloadTimer = this.time.delayedCall(1000, reloadEvent, [], this);
+        // }, this);
+    }
 
     constrainCrosshair(crosshair) {
         var distX = crosshair.x - player.x; // X distance between player & crosshair
