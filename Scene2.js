@@ -23,6 +23,8 @@ class Scene2 extends Phaser.Scene {
 
         this.r = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
 
+        pads = this.input.gamepad.gamepads;
+
         //Creates the crosshair, positioning it to the right of the player
         this.crosshair = this.physics.add.sprite(config.width / 2 + 64, config.height / 2, "crosshair");
 
@@ -61,6 +63,8 @@ class Scene2 extends Phaser.Scene {
             'Ammo: ' + ammoScoreCounter.data.get('ammo'),
             'Score: ' + ammoScoreCounter.data.get('score')
         ]);
+
+        //controller support
 
         //fire bullet
         this.input.on('pointerdown', function (pointer, time, lastFired) {
@@ -116,6 +120,7 @@ class Scene2 extends Phaser.Scene {
     update() {
         // Rotates player to face towards reticle
         player.rotation = Phaser.Math.Angle.Between(player.x, player.y, this.crosshair.x, this.crosshair.y);
+        
 
         this.playerDead();
         ammoScoreCounterText.setText([
@@ -145,6 +150,7 @@ class Scene2 extends Phaser.Scene {
             //this.physics.add.collider(this.zombies);
             killer.setVelocity(20);
             //Fade to black
+            reloading = false;
             this.scene.start("deathScene");
         }
     }
@@ -185,21 +191,48 @@ class Scene2 extends Phaser.Scene {
         });
     }
     movePlayerManager() {
+        
         player.setVelocity(0);
         if(player.active) {
-            if (this.cursorKeys.left.isDown) {
-                player.setVelocityX(-gameSettings.playerSpeed);
-            } else if (this.cursorKeys.right.isDown) {
-                player.setVelocityX(gameSettings.playerSpeed);
-            }
 
-            if (this.cursorKeys.up.isDown) {
-                player.setVelocityY(-gameSettings.playerSpeed);
-            } else if (this.cursorKeys.down.isDown) {
-                player.setVelocityY(gameSettings.playerSpeed);
+            //if-else statement: checks number of gamepads connected. if less than one, it reverts to keyboard controls. if more, it uses both keyboard AND controller controls
+            if(pads.length > 0){
+                for (var i = 0; i < pads.length; i++){
+                    var gamepad = pads[i];
+                    
+                    if (this.cursorKeys.left.isDown || gamepad.left) {
+                        player.setVelocityX(-gameSettings.playerSpeed);
+                    } else if (this.cursorKeys.right.isDown || gamepad.right) {
+                        player.setVelocityX(gameSettings.playerSpeed);
+                    }
+        
+                    if (this.cursorKeys.up.isDown || gamepad.up) {
+                        player.setVelocityY(-gameSettings.playerSpeed);
+                    } else if (this.cursorKeys.down.isDown || gamepad.down) {
+                        player.setVelocityY(gameSettings.playerSpeed);
+                    }
+                }
             }
+            else{
+                if (this.cursorKeys.left.isDown) {
+                    player.setVelocityX(-gameSettings.playerSpeed);
+                } else if (this.cursorKeys.right.isDown) {
+                    player.setVelocityX(gameSettings.playerSpeed);
+                }
+    
+                if (this.cursorKeys.up.isDown) {
+                    player.setVelocityY(-gameSettings.playerSpeed);
+                } else if (this.cursorKeys.down.isDown) {
+                    player.setVelocityY(gameSettings.playerSpeed);
+                }
+            }
+            
+            
         }
     }
+
+    
+
     constrainCrosshair(crosshair) {
         var distX = crosshair.x - player.x; // X distance between player & crosshair
         var distY = crosshair.y - player.y; // Y distance between player & crosshair

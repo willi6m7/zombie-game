@@ -11,6 +11,9 @@ var gameSettings = {
     height: 300,
     backgroundColor: 0x000000,
     scene: [Scene1, Scene2, Scene3],
+    input: {
+      gamepad: true
+    },
     pixelArt: true,
     physics: {
       default: "arcade",
@@ -37,6 +40,7 @@ var gameSettings = {
   var ammoScoreCounterText = null;
   var reloading = false;
   var reloadTimer = null;
+  var pads = null;
 
   function reloadEvent(){
     ammoScoreCounter.data.set('ammo', ammoAmount = 10);
