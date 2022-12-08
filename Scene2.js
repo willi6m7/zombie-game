@@ -191,15 +191,15 @@ class Scene2 extends Phaser.Scene {
                 for (var i = 0; i < pads.length; i++){
                     var gamepad = pads[i];
                     
-                    if (this.cursorKeys.left.isDown || gamepad.left) {
+                    if (this.cursorKeys.left.isDown || gamepad.leftStick.x < -0.25) {
                         player.setVelocityX(-gameSettings.playerSpeed);
-                    } else if (this.cursorKeys.right.isDown || gamepad.right) {
+                    }else if (this.cursorKeys.right.isDown || gamepad.leftStick.x > 0.25) {
                         player.setVelocityX(gameSettings.playerSpeed);
                     }
         
-                    if (this.cursorKeys.up.isDown || gamepad.up) {
+                    if (this.cursorKeys.up.isDown || gamepad.leftStick.y < -0.25) {
                         player.setVelocityY(-gameSettings.playerSpeed);
-                    } else if (this.cursorKeys.down.isDown || gamepad.down) {
+                    } else if (this.cursorKeys.down.isDown || gamepad.leftStick.y > 0.25) {
                         player.setVelocityY(gameSettings.playerSpeed);
                     }
                 }
