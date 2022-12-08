@@ -16,7 +16,7 @@ class Scene2 extends Phaser.Scene {
 
         //Creates player in center of canvas, then decreases the scale of the player
         player = this.physics.add.sprite(config.width / 2, config.height / 2, "player");
-        player.setScale(0.20).setSize(160,160);
+        player.setScale(0.20).setSize(100,100);
 
         playerBullets = this.physics.add.group({ classType: Bullet, runChildUpdate: true });
         ammoAmount = 10;
@@ -85,10 +85,9 @@ class Scene2 extends Phaser.Scene {
         }, this);
 
         this.physics.add.overlap(playerBullets, this.zombies, function(bullet, zombie) {
-            bullet.destroy();
             zombie.destroy();
           });
-        this.physics.add.overlap(player, this.zombies, function(player, zombie) {
+        this.physics.add.collider(player, this.zombies, function(player, zombie) {
             killer = zombie;
             player.active = false;
           });
@@ -132,15 +131,16 @@ class Scene2 extends Phaser.Scene {
     }
     updatePlayerHitbox() {
         if(this.crosshair.x < player.x) {
-            player.setOffset(80,20);
+            player.setOffset(100,20);
         } else {
-            player.setOffset(20,20);
+            player.setOffset(60,30);
         }
     }
     playerDead() {
         if(!player.active) {
             if (game.input.mouse.locked)
                 game.input.mouse.releasePointerLock();
+                reloading = false;
             gameSettings.zombieSpeed = 400;
             //this.physics.add.collider(this.zombies);
             killer.setVelocity(20);

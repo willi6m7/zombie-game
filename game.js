@@ -1,6 +1,6 @@
 var gameSettings = {
     playerSpeed: 130,
-    zombieSpeed: 35,
+    zombieSpeed: 28,
     maxPowerups: 2,
     powerUpVel: 50,
     spawnTime: 1500
