@@ -23,6 +23,8 @@ class Scene2 extends Phaser.Scene {
 
         this.r = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
 
+        pads = this.input.gamepad.gamepads;
+
         //Creates the crosshair, positioning it to the right of the player
         this.crosshair = this.physics.add.sprite(config.width / 2 + 64, config.height / 2, "crosshair");
 
@@ -31,7 +33,9 @@ class Scene2 extends Phaser.Scene {
             {up:Phaser.Input.Keyboard.KeyCodes.W,
             down:Phaser.Input.Keyboard.KeyCodes.S,
             left:Phaser.Input.Keyboard.KeyCodes.A,
-            right:Phaser.Input.Keyboard.KeyCodes.D});
+            right:Phaser.Input.Keyboard.KeyCodes.D,
+            reload:Phaser.Input.Keyboard.KeyCodes.R
+            });
         this.physics.world.setBoundsCollision();
         player.setCollideWorldBounds(true);
         this.crosshair.setCollideWorldBounds(true);
@@ -62,27 +66,10 @@ class Scene2 extends Phaser.Scene {
             'Score: ' + ammoScoreCounter.data.get('score')
         ]);
 
-        //fire bullet
-        this.input.on('pointerdown', function (pointer, time, lastFired) {
-            if (player.active == false || ammoScoreCounter.data.get('ammo') == 0)
-                return;
+        //controller support
 
-            if (reloading == true)
-                return;
-                
-    
-            // Get bullet from bullets group
-            var bullet = playerBullets.get().setActive(true).setVisible(true);
-    
-            if (bullet)
-            {
-                player.play("shoot");
-                bullet.fire(player, this.crosshair);
-                ammoScoreCounter.data.set('ammo', ammoAmount -= 1);
-                bullet.fire(player, this.crosshair);
-                //this.physics.add.collider(enemy, bullet, enemyHitCallback);
-            }
-        }, this);
+        //fire bullet
+        this.input.on('pointerdown', this.shootManager, this);
 
         this.physics.add.overlap(playerBullets, this.zombies, function(bullet, zombie) {
             zombie.destroy();
@@ -99,35 +86,30 @@ class Scene2 extends Phaser.Scene {
             }
         }, this);
         player.play("soldierWalk");
-
-        // Reload functionality
-        this.input.keyboard.on('keydown_R', function (event) {
-            reloading = true;
-            reloadTimer = this.time.delayedCall(1000, reloadEvent, [], this);
-        }, this);
-
-        
-
-
     }
-
-    
 
     update() {
         // Rotates player to face towards reticle
         player.rotation = Phaser.Math.Angle.Between(player.x, player.y, this.crosshair.x, this.crosshair.y);
+        
 
         this.playerDead();
         ammoScoreCounterText.setText([
             'Ammo: ' + ammoScoreCounter.data.get('ammo'),
             'Score: ' + ammoScoreCounter.data.get('score')
         ]);
+
+
         this.movePlayerManager();
 
         this.constrainCrosshair(this.crosshair);
         
         this.zombiesMove(this);
         this.updatePlayerHitbox();
+
+        this.reloadManager();
+        this.moveCursorManager();
+        this.gamepadShootManager();
     }
     updatePlayerHitbox() {
         if(this.crosshair.x < player.x) {
@@ -145,6 +127,7 @@ class Scene2 extends Phaser.Scene {
             //this.physics.add.collider(this.zombies);
             killer.setVelocity(20);
             //Fade to black
+            reloading = false;
             this.scene.start("deathScene");
         }
     }
@@ -185,21 +168,148 @@ class Scene2 extends Phaser.Scene {
         });
     }
     movePlayerManager() {
+        
         player.setVelocity(0);
         if(player.active) {
-            if (this.cursorKeys.left.isDown) {
-                player.setVelocityX(-gameSettings.playerSpeed);
-            } else if (this.cursorKeys.right.isDown) {
-                player.setVelocityX(gameSettings.playerSpeed);
-            }
 
-            if (this.cursorKeys.up.isDown) {
-                player.setVelocityY(-gameSettings.playerSpeed);
-            } else if (this.cursorKeys.down.isDown) {
-                player.setVelocityY(gameSettings.playerSpeed);
+            //if-else statement: checks number of gamepads connected. if less than one, it reverts to keyboard controls. if more, it uses both keyboard AND controller controls
+            if(pads.length > 0){
+                for (var i = 0; i < pads.length; i++){
+                    var gamepad = pads[i];
+                    
+                    if (this.cursorKeys.left.isDown || gamepad.leftStick.x < -0.25) {
+                        player.setVelocityX(-gameSettings.playerSpeed);
+                    }else if (this.cursorKeys.right.isDown || gamepad.leftStick.x > 0.25) {
+                        player.setVelocityX(gameSettings.playerSpeed);
+                    }
+        
+                    if (this.cursorKeys.up.isDown || gamepad.leftStick.y < -0.25) {
+                        player.setVelocityY(-gameSettings.playerSpeed);
+                    } else if (this.cursorKeys.down.isDown || gamepad.leftStick.y > 0.25) {
+                        player.setVelocityY(gameSettings.playerSpeed);
+                    }
+                }
+            }
+            else{
+                if (this.cursorKeys.left.isDown) {
+                    player.setVelocityX(-gameSettings.playerSpeed);
+                } else if (this.cursorKeys.right.isDown) {
+                    player.setVelocityX(gameSettings.playerSpeed);
+                }
+    
+                if (this.cursorKeys.up.isDown) {
+                    player.setVelocityY(-gameSettings.playerSpeed);
+                } else if (this.cursorKeys.down.isDown) {
+                    player.setVelocityY(gameSettings.playerSpeed);
+                }
+            }
+            
+            
+        }
+    }
+
+    moveCursorManager(){
+        this.crosshair.setVelocity(0);
+        if(player.active) {
+            for (var i = 0; i < pads.length; i++){
+                var gamepad = pads[i];
+                
+                if (gamepad.rightStick.x < -0.25) {
+                    this.crosshair.setVelocityX(-gameSettings.playerLookSpeed);
+                }else if (gamepad.rightStick.x > 0.25) {
+                    this.crosshair.setVelocityX(gameSettings.playerLookSpeed);
+                }
+    
+                if (gamepad.rightStick.y < -0.25) {
+                    this.crosshair.setVelocityY(-gameSettings.playerLookSpeed);
+                } else if (gamepad.rightStick.y > 0.25) {
+                    this.crosshair.setVelocityY(gameSettings.playerLookSpeed);
+                }
             }
         }
     }
+
+    reloadManager(){
+        if(player.active){
+            if(pads.length > 0){
+                for(var i = 0; i < pads.length; i++){
+                    var gamepad = pads[i];
+                    if(this.cursorKeys.reload.isDown || gamepad.X){
+                        reloading = true;
+                        reloadTimer = this.time.delayedCall(1000, reloadEvent, [], this);
+                    }
+                }
+                
+            }else{
+                if(this.cursorKeys.reload.isDown){
+                    reloading = true;
+                    reloadTimer = this.time.delayedCall(1000, reloadEvent, [], this);
+                }
+            }
+        }
+    }
+
+    shootManager(){
+        if(player.active){
+            if (player.active == false || ammoScoreCounter.data.get('ammo') == 0)
+                return;
+
+            if (reloading == true)
+                return;
+                
+    
+            // Get bullet from bullets group
+            var bullet = playerBullets.get().setActive(true).setVisible(true);
+    
+            if (bullet)
+            {
+                player.play("shoot");
+                bullet.fire(player, this.crosshair);
+                ammoScoreCounter.data.set('ammo', ammoAmount -= 1);
+                bullet.fire(player, this.crosshair);
+                //this.physics.add.collider(enemy, bullet, enemyHitCallback);
+            }
+        }
+    }
+
+    gamepadShootManager(){
+        if(player.active){
+            if(pads.length > 0){
+                for(var i = 0; i < pads.length; i++){
+                    var gamepad = pads[i];
+
+                    if(gamepad.R2 < 0.1){
+                        hasShot = false;
+                    }
+
+                    if(hasShot == false){
+                        if(gamepad.R2 > 0.1){
+                            if (player.active == false || ammoScoreCounter.data.get('ammo') == 0)
+                            return;
+    
+                            if (reloading == true)
+                            return;
+                    
+        
+                            // Get bullet from bullets group
+                            var bullet = playerBullets.get().setActive(true).setVisible(true);
+        
+                            if (bullet)
+                            {
+                                player.play("shoot");
+                                bullet.fire(player, this.crosshair);
+                                ammoScoreCounter.data.set('ammo', ammoAmount -= 1);
+                                bullet.fire(player, this.crosshair);
+                                //this.physics.add.collider(enemy, bullet, enemyHitCallback);
+                                hasShot = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     constrainCrosshair(crosshair) {
         var distX = crosshair.x - player.x; // X distance between player & crosshair
         var distY = crosshair.y - player.y; // Y distance between player & crosshair
