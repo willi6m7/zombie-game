@@ -34,7 +34,8 @@ class Scene2 extends Phaser.Scene {
             down:Phaser.Input.Keyboard.KeyCodes.S,
             left:Phaser.Input.Keyboard.KeyCodes.A,
             right:Phaser.Input.Keyboard.KeyCodes.D,
-            reload:Phaser.Input.Keyboard.KeyCodes.R});
+            reload:Phaser.Input.Keyboard.KeyCodes.R
+            });
         this.physics.world.setBoundsCollision();
         player.setCollideWorldBounds(true);
         this.crosshair.setCollideWorldBounds(true);
@@ -68,26 +69,7 @@ class Scene2 extends Phaser.Scene {
         //controller support
 
         //fire bullet
-        this.input.on('pointerdown', function (pointer, time, lastFired) {
-            if (player.active == false || ammoScoreCounter.data.get('ammo') == 0)
-                return;
-
-            if (reloading == true)
-                return;
-                
-    
-            // Get bullet from bullets group
-            var bullet = playerBullets.get().setActive(true).setVisible(true);
-    
-            if (bullet)
-            {
-                player.play("shoot");
-                bullet.fire(player, this.crosshair);
-                ammoScoreCounter.data.set('ammo', ammoAmount -= 1);
-                bullet.fire(player, this.crosshair);
-                //this.physics.add.collider(enemy, bullet, enemyHitCallback);
-            }
-        }, this);
+        this.input.on('pointerdown', this.shootManager, this);
 
         this.physics.add.overlap(playerBullets, this.zombies, function(bullet, zombie) {
             zombie.destroy();
@@ -116,6 +98,8 @@ class Scene2 extends Phaser.Scene {
             'Ammo: ' + ammoScoreCounter.data.get('ammo'),
             'Score: ' + ammoScoreCounter.data.get('score')
         ]);
+
+
         this.movePlayerManager();
 
         this.constrainCrosshair(this.crosshair);
@@ -124,6 +108,8 @@ class Scene2 extends Phaser.Scene {
         this.updatePlayerHitbox();
 
         this.reloadManager();
+        this.moveCursorManager();
+        this.gamepadShootManager();
     }
     updatePlayerHitbox() {
         if(this.crosshair.x < player.x) {
@@ -222,6 +208,27 @@ class Scene2 extends Phaser.Scene {
         }
     }
 
+    moveCursorManager(){
+        this.crosshair.setVelocity(0);
+        if(player.active) {
+            for (var i = 0; i < pads.length; i++){
+                var gamepad = pads[i];
+                
+                if (gamepad.rightStick.x < -0.25) {
+                    this.crosshair.setVelocityX(-gameSettings.playerLookSpeed);
+                }else if (gamepad.rightStick.x > 0.25) {
+                    this.crosshair.setVelocityX(gameSettings.playerLookSpeed);
+                }
+    
+                if (gamepad.rightStick.y < -0.25) {
+                    this.crosshair.setVelocityY(-gameSettings.playerLookSpeed);
+                } else if (gamepad.rightStick.y > 0.25) {
+                    this.crosshair.setVelocityY(gameSettings.playerLookSpeed);
+                }
+            }
+        }
+    }
+
     reloadManager(){
         if(player.active){
             if(pads.length > 0){
@@ -240,13 +247,67 @@ class Scene2 extends Phaser.Scene {
                 }
             }
         }
+    }
+
+    shootManager(){
+        if(player.active){
+            if (player.active == false || ammoScoreCounter.data.get('ammo') == 0)
+                return;
+
+            if (reloading == true)
+                return;
+                
+    
+            // Get bullet from bullets group
+            var bullet = playerBullets.get().setActive(true).setVisible(true);
+    
+            if (bullet)
+            {
+                player.play("shoot");
+                bullet.fire(player, this.crosshair);
+                ammoScoreCounter.data.set('ammo', ammoAmount -= 1);
+                bullet.fire(player, this.crosshair);
+                //this.physics.add.collider(enemy, bullet, enemyHitCallback);
+            }
+        }
+    }
+
+    gamepadShootManager(){
+        if(player.active){
+            if(pads.length > 0){
+                for(var i = 0; i < pads.length; i++){
+                    var gamepad = pads[i];
+
+                    if(gamepad.R2 < 0.1){
+                        hasShot = false;
+                    }
+
+                    if(hasShot == false){
+                        if(gamepad.R2 > 0.1){
+                            if (player.active == false || ammoScoreCounter.data.get('ammo') == 0)
+                            return;
+    
+                            if (reloading == true)
+                            return;
+                    
         
-
-
-        // this.input.keyboard.on('keydown_R', function (event) {
-        //     reloading = true;
-        //     reloadTimer = this.time.delayedCall(1000, reloadEvent, [], this);
-        // }, this);
+                            // Get bullet from bullets group
+                            var bullet = playerBullets.get().setActive(true).setVisible(true);
+        
+                            if (bullet)
+                            {
+                                player.play("shoot");
+                                bullet.fire(player, this.crosshair);
+                                ammoScoreCounter.data.set('ammo', ammoAmount -= 1);
+                                bullet.fire(player, this.crosshair);
+                                //this.physics.add.collider(enemy, bullet, enemyHitCallback);
+                                hasShot = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     constrainCrosshair(crosshair) {

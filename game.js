@@ -1,5 +1,6 @@
 var gameSettings = {
     playerSpeed: 130,
+    playerLookSpeed: 300,
     zombieSpeed: 28,
     maxPowerups: 2,
     powerUpVel: 50,
@@ -40,6 +41,7 @@ var gameSettings = {
   var ammoScoreCounterText = null;
   var reloading = false;
   var reloadTimer = null;
+  var hasShot = false;
   var pads = null;
 
   function reloadEvent(){
