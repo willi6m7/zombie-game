@@ -8,7 +8,6 @@ class Scene2 extends Phaser.Scene {
         //Adds the background image
         this.background = this.add.tileSprite(0, 0, config.width, config.height, "background");
         this.background.setOrigin(0, 0);
-
         playerBullets = this.physics.add.group({ classType: Bullet, runChildUpdate: true });
         //Ammo counter HUD
         ammoScoreCounter = this.add.image(10, 10, 'status');
@@ -16,7 +15,7 @@ class Scene2 extends Phaser.Scene {
 
         //Creates player in center of canvas, then decreases the scale of the player
         player = this.physics.add.sprite(config.width / 2, config.height / 2, "player");
-        player.setScale(0.20).setSize(100,100);
+        player.setScale(0.20).setSize(60,60);
 
         playerBullets = this.physics.add.group({ classType: Bullet, runChildUpdate: true });
         ammoAmount = 10;
@@ -73,6 +72,7 @@ class Scene2 extends Phaser.Scene {
 
         this.physics.add.overlap(playerBullets, this.zombies, function(bullet, zombie) {
             zombie.destroy();
+            ammoScoreCounter.data.set('score',ammoScoreCounter.data.get('score') + 1);
           });
         this.physics.add.collider(player, this.zombies, function(player, zombie) {
             killer = zombie;
@@ -113,9 +113,21 @@ class Scene2 extends Phaser.Scene {
     }
     updatePlayerHitbox() {
         if(this.crosshair.x < player.x) {
-            player.setOffset(100,20);
+            if(this.crosshair.y < player.y){
+                //cursor at top-left
+                player.setOffset(165,75);
+            } else {
+                //bott-left
+                player.setOffset(160,50);
+            }
         } else {
-            player.setOffset(60,30);
+            if(this.crosshair.y > player.y){
+                //top-right
+                player.setOffset(50,-0);
+            } else {
+                //bottom-right
+                player.setOffset(100,160);
+            }
         }
     }
     playerDead() {
@@ -128,6 +140,8 @@ class Scene2 extends Phaser.Scene {
             killer.setVelocity(20);
             //Fade to black
             reloading = false;
+            var deathMusic = this.sound.add("deathMusic");
+            deathMusic.play();
             this.scene.start("deathScene");
         }
     }
@@ -139,19 +153,19 @@ class Scene2 extends Phaser.Scene {
             switch (Math.floor(Math.random() * 4)) {
                 case 0:
                     xAxis = 0;
-                    yAxis = Math.floor(Math.random() * 300);
+                    yAxis = Math.floor(Math.random() * config.height);
                     break;
                 case 1:
-                    xAxis = 500;
-                    yAxis = Math.floor(Math.random() * 300);
+                    xAxis = config.width;
+                    yAxis = Math.floor(Math.random() * config.height);
                     break;
                 case 2:
                     yAxis = 0;
-                    xAxis = Math.floor(Math.random() * 500);
+                    xAxis = Math.floor(Math.random() * config.width);
                     break;
                 case 3:
-                    yAxis = 300;
-                    xAxis = Math.floor(Math.random() * 500);
+                    yAxis = config.height;
+                    xAxis = Math.floor(Math.random() * config.width);
                     break;
             }
                 
@@ -236,6 +250,7 @@ class Scene2 extends Phaser.Scene {
                     var gamepad = pads[i];
                     if(this.cursorKeys.reload.isDown || gamepad.X){
                         reloading = true;
+                        player.play('soldierReload');
                         reloadTimer = this.time.delayedCall(1000, reloadEvent, [], this);
                     }
                 }
@@ -243,6 +258,7 @@ class Scene2 extends Phaser.Scene {
             }else{
                 if(this.cursorKeys.reload.isDown){
                     reloading = true;
+                    player.play('soldierReload');
                     reloadTimer = this.time.delayedCall(1000, reloadEvent, [], this);
                 }
             }

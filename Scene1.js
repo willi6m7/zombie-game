@@ -5,9 +5,10 @@ class Scene1 extends Phaser.Scene {
   
     preload(){
       this.load.image("background", "assets/images/background.png");
-      this.load.image("menuBkg", "assets/images/menubkg.png");
-      this.load.image("YouDied", "assets/images/You died.png");
+      this.load.image("YouDied", "assets/images/Udied.png");
+      this.load.image("menuBkg", "assets/images/menubkg.png"); 
       this.load.audio("menuMusic", "assets/audio/Main-Menu.mp3");
+      this.load.audio("deathMusic", "assets/audio/YouDied.mp3");
       //
       this.load.spritesheet("player", "assets/spritesheets/soldier/walk/survivor-move_rifle_0.png",{
         frameWidth: 313,
@@ -101,6 +102,86 @@ class Scene1 extends Phaser.Scene {
         frameWidth: 313,
         frameHeight: 206
       });
+      this.load.spritesheet("reload0", "assets/spritesheets/soldier/reload/survivor-reload_rifle_0.png",{
+        frameWidth: 313,
+        frameHeight: 206
+      });
+      this.load.spritesheet("reload1", "assets/spritesheets/soldier/reload/survivor-reload_rifle_1.png",{
+        frameWidth: 313,
+        frameHeight: 206
+      });
+      this.load.spritesheet("reload2", "assets/spritesheets/soldier/reload/survivor-reload_rifle_2.png",{
+        frameWidth: 313,
+        frameHeight: 206
+      });
+      this.load.spritesheet("reload3", "assets/spritesheets/soldier/reload/survivor-reload_rifle_3.png",{
+        frameWidth: 313,
+        frameHeight: 206
+      });
+      this.load.spritesheet("reload4", "assets/spritesheets/soldier/reload/survivor-reload_rifle_4.png",{
+        frameWidth: 313,
+        frameHeight: 206
+      });
+      this.load.spritesheet("reload5", "assets/spritesheets/soldier/reload/survivor-reload_rifle_5.png",{
+        frameWidth: 313,
+        frameHeight: 206
+      });
+      this.load.spritesheet("reload6", "assets/spritesheets/soldier/reload/survivor-reload_rifle_6.png",{
+        frameWidth: 313,
+        frameHeight: 206
+      });
+      this.load.spritesheet("reload7", "assets/spritesheets/soldier/reload/survivor-reload_rifle_7.png",{
+        frameWidth: 313,
+        frameHeight: 206
+      });
+      this.load.spritesheet("reload8", "assets/spritesheets/soldier/reload/survivor-reload_rifle_8.png",{
+        frameWidth: 313,
+        frameHeight: 206
+      });
+      this.load.spritesheet("reload9", "assets/spritesheets/soldier/reload/survivor-reload_rifle_9.png",{
+        frameWidth: 313,
+        frameHeight: 206
+      });
+      this.load.spritesheet("reload10", "assets/spritesheets/soldier/reload/survivor-reload_rifle_10.png",{
+        frameWidth: 313,
+        frameHeight: 206
+      });
+      this.load.spritesheet("reload11", "assets/spritesheets/soldier/reload/survivor-reload_rifle_11.png",{
+        frameWidth: 313,
+        frameHeight: 206
+      });
+      this.load.spritesheet("reload12", "assets/spritesheets/soldier/reload/survivor-reload_rifle_12.png",{
+        frameWidth: 313,
+        frameHeight: 206
+      });
+      this.load.spritesheet("reload13", "assets/spritesheets/soldier/reload/survivor-reload_rifle_13.png",{
+        frameWidth: 313,
+        frameHeight: 206
+      });
+      this.load.spritesheet("reload14", "assets/spritesheets/soldier/reload/survivor-reload_rifle_14.png",{
+        frameWidth: 313,
+        frameHeight: 206
+      });
+      this.load.spritesheet("reload15", "assets/spritesheets/soldier/reload/survivor-reload_rifle_15.png",{
+        frameWidth: 313,
+        frameHeight: 206
+      });
+      this.load.spritesheet("reload16", "assets/spritesheets/soldier/reload/survivor-reload_rifle_16.png",{
+        frameWidth: 313,
+        frameHeight: 206
+      });
+      this.load.spritesheet("reload17", "assets/spritesheets/soldier/reload/survivor-reload_rifle_17.png",{
+        frameWidth: 313,
+        frameHeight: 206
+      });
+      this.load.spritesheet("reload18", "assets/spritesheets/soldier/reload/survivor-reload_rifle_18.png",{
+        frameWidth: 313,
+        frameHeight: 206
+      });
+      this.load.spritesheet("reload19", "assets/spritesheets/soldier/reload/survivor-reload_rifle_19.png",{
+        frameWidth: 313,
+        frameHeight: 206
+      });
       this.load.spritesheet("crosshair", "assets/spritesheets/crosshair.png",{
         frameWidth: 400,
         frameHeight: 400
@@ -182,14 +263,19 @@ class Scene1 extends Phaser.Scene {
     }
   
     create() {
-      this.background = this.add.tileSprite(0, 0, config.width, config.height, "menuBkg");
-      this.background.setOrigin(0, 0);
-      this.add.text(config.width/2,config.height/2, 'Press Space to Start');
+      /*this.background = this.add.tileSprite(0, 0, window.innerWidth, window.innerHeight, "menuBkg");
+      this.background.setOrigin(0, 0);*/
+      this.background = this.add.image(0, 0, "menuBkg").setOrigin(0, 0);
+        // Based on your game size, it may "stretch" and distort.
+        this.background.displayWidth = config.width;
+        this.background.displayHeight = config.height;
+      var  text = this.add.text(config.width/2,config.height/2, 'Press Space (or A) to Start');
+      Phaser.Display.Align.In.Center(text, this.add.zone(config.width/2,config.height/2,config.width,config.height));
       this.spacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
       //var menuMusic = this.sound.add('menuMusic');
       //menuMusic.play();
 
-      
+      pads = this.input.gamepad.gamepads;
 
       this.anims.create({
         key: "zombieWalk",
@@ -243,6 +329,33 @@ class Scene1 extends Phaser.Scene {
         repeat: -1
       });
       this.anims.create({
+        key: "soldierReload",
+        frames: [
+          { key: 'reload0' },
+          { key: 'reload1' },
+          { key: 'reload2' },
+          { key: 'reload3' },
+          { key: 'reload4' },
+          { key: 'reload5' },
+          { key: 'reload6' },
+          { key: 'reload7' },
+          { key: 'reload8' },
+          { key: 'reload9' },
+          { key: 'reload10' },
+          { key: 'reload11' },
+          { key: 'reload12' },
+          { key: 'reload13' },
+          { key: 'reload14' },
+          { key: 'reload15' },
+          { key: 'reload16' },
+          { key: 'reload17' },
+          { key: 'reload18' },
+          { key: 'reload19' },
+        ],
+        frameRate: 20,
+        repeat: 0
+      });
+      this.anims.create({
         key: "shoot",
         frames: [
           { key: 'shoot0' },
@@ -262,6 +375,13 @@ class Scene1 extends Phaser.Scene {
     update(){
       if(Phaser.Input.Keyboard.JustDown(this.spacebar)){
         this.startGame();
+      }
+      if((pads.length > 0)) {
+        for (var i = 0; i < pads.length; i++){
+          var gamepad = pads[i];
+          if(gamepad.A)
+            this.startGame();
+        }
       }
     }
   }
