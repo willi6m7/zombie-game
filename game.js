@@ -1,6 +1,7 @@
 var gameSettings = {
     playerSpeed: 130,
-    zombieSpeed: 35,
+    playerLookSpeed: 300,
+    zombieSpeed: 28,
     maxPowerups: 2,
     powerUpVel: 50,
     spawnTime: 1500
@@ -11,6 +12,9 @@ var gameSettings = {
     height: 300,
     backgroundColor: 0x000000,
     scene: [Scene1, Scene2, Scene3],
+    input: {
+      gamepad: true
+    },
     pixelArt: true,
     physics: {
       default: "arcade",
@@ -37,6 +41,8 @@ var gameSettings = {
   var ammoScoreCounterText = null;
   var reloading = false;
   var reloadTimer = null;
+  var hasShot = false;
+  var pads = null;
 
   function reloadEvent(){
     ammoScoreCounter.data.set('ammo', ammoAmount = 10);
