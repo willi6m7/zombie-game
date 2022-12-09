@@ -43,6 +43,7 @@ var gameSettings = {
   var reloadTimer = null;
   var hasShot = false;
   var pads = null;
+  //var menuMusic = null;
 
   function reloadEvent(){
     ammoScoreCounter.data.set('ammo', ammoAmount = 10);

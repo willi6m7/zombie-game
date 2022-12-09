@@ -5,6 +5,9 @@ class Scene1 extends Phaser.Scene {
   
     preload(){
       this.load.image("background", "assets/images/background.png");
+      this.load.image("menuBkg", "assets/images/menubkg.png");
+      this.load.image("YouDied", "assets/images/You died.png");
+      this.load.audio("menuMusic", "assets/audio/Main-Menu.mp3");
       //
       this.load.spritesheet("player", "assets/spritesheets/soldier/walk/survivor-move_rifle_0.png",{
         frameWidth: 313,
@@ -179,8 +182,14 @@ class Scene1 extends Phaser.Scene {
     }
   
     create() {
+      this.background = this.add.tileSprite(0, 0, config.width, config.height, "menuBkg");
+      this.background.setOrigin(0, 0);
       this.add.text(config.width/2,config.height/2, 'Press Space to Start');
       this.spacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+      //var menuMusic = this.sound.add('menuMusic');
+      //menuMusic.play();
+
+      
 
       this.anims.create({
         key: "zombieWalk",
@@ -246,6 +255,7 @@ class Scene1 extends Phaser.Scene {
     }
 
     startGame(){
+      //menuMusic.stop();
       this.scene.start('playGame');
     }
 
