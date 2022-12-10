@@ -5,6 +5,10 @@ class Scene2 extends Phaser.Scene {
 
     create() {
         game.input.mouse.requestPointerLock();
+        music = this.sound.add('menuMusic', {volume: 0.25});
+        music.play();
+        zombieSounds = this.sound.add('zombieSounds', {volume: 0.25});
+        zombieSounds.play();
         //Adds the background image
         this.background = this.add.tileSprite(0, 0, config.width, config.height, "background");
         this.background.setOrigin(0, 0);
@@ -140,9 +144,25 @@ class Scene2 extends Phaser.Scene {
             killer.setVelocity(20);
             //Fade to black
             reloading = false;
-            var deathMusic = this.sound.add("deathMusic");
+            music.stop();
+            zombieSounds.stop();
+            var deathMusic = this.sound.add("deathMusic", {volume: 0.25});
             deathMusic.play();
+            score = ammoScoreCounter.data.get("score");
+            this.setHighScore();
             this.scene.start("deathScene");
+        }
+    }
+    setHighScore() {
+        debugger;
+        if(highScore) {
+            if(score > highScore) {
+                localStorage.setItem("highScore", score);
+                highScore = localStorage.getItem("highScore");
+            }
+        } else {
+            localStorage.setItem("highScore", score);
+            highScore = localStorage.getItem("highScore");
         }
     }
     spawnZombies() {
@@ -279,6 +299,8 @@ class Scene2 extends Phaser.Scene {
     
             if (bullet)
             {
+                let shootSound = this.sound.add("shoot", {volume: 0.25});
+                shootSound.play();
                 player.play("shoot");
                 bullet.fire(player, this.crosshair);
                 ammoScoreCounter.data.set('ammo', ammoAmount -= 1);
@@ -312,6 +334,8 @@ class Scene2 extends Phaser.Scene {
         
                             if (bullet)
                             {
+                                let shootSound = this.sound.add("shoot",{volume: 0.5});
+                                shootSound.play();
                                 player.play("shoot");
                                 bullet.fire(player, this.crosshair);
                                 ammoScoreCounter.data.set('ammo', ammoAmount -= 1);
