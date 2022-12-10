@@ -4,6 +4,7 @@ class Scene3 extends Phaser.Scene {
     }
     create() {
         var sprite = this.add.image(0, 0,'YouDied').setScale(0.5);
+        this.add.text(config.width/2 - 50, 20,"Score: " + score).setOrigin(0,0);
         //  Center the sprite to the picture
         Phaser.Display.Align.In.Center(sprite, this.add.zone(config.width/2,config.height/2,config.width,config.height));
 

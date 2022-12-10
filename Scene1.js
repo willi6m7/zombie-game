@@ -9,6 +9,8 @@ class Scene1 extends Phaser.Scene {
       this.load.image("menuBkg", "assets/images/menubkg.png"); 
       this.load.audio("menuMusic", "assets/audio/Main-Menu.mp3");
       this.load.audio("deathMusic", "assets/audio/YouDied.mp3");
+      this.load.audio("shoot", "assets/audio/shoot.mp3");
+      this.load.audio("zombieSounds", "assets/audio/zombieSounds.mp3");
       //
       this.load.spritesheet("player", "assets/spritesheets/soldier/walk/survivor-move_rifle_0.png",{
         frameWidth: 313,
@@ -263,17 +265,31 @@ class Scene1 extends Phaser.Scene {
     }
   
     create() {
-      /*this.background = this.add.tileSprite(0, 0, window.innerWidth, window.innerHeight, "menuBkg");
-      this.background.setOrigin(0, 0);*/
+      highScore = localStorage.getItem("highScore");
+      if(!highScore)
+          highScore = 0;
       this.background = this.add.image(0, 0, "menuBkg").setOrigin(0, 0);
         // Based on your game size, it may "stretch" and distort.
         this.background.displayWidth = config.width;
         this.background.displayHeight = config.height;
-      var  text = this.add.text(config.width/2,config.height/2, 'Press Space (or A) to Start');
+
+      var text = this.add.text(config.width/2,config.height/2, 'Press Space (or A) to Start');
       Phaser.Display.Align.In.Center(text, this.add.zone(config.width/2,config.height/2,config.width,config.height));
+      var highScoreText = this.add.text(config.width/2,config.height/2, 'HighScore: ' + highScore);
+      Phaser.Display.Align.In.TopRight(highScoreText, this.add.zone(config.width/2,config.height/2,config.width,config.height));
+      var content = [
+        "Instructions:",
+        "   Move player with WASD (Right stick on controller).",
+        "   Aim with your mouse (Left stick on controller).",
+        "   Left-click to shoot (Right trigger on controller).",
+        "   Press R to reload (X or SQUARE on controller)."
+      ];
+
+      var instructions = this.add.text(config.width/2,config.height/2, content);
+      Phaser.Display.Align.In.BottomLeft(instructions, this.add.zone(config.width/2,config.height/2,config.width,config.height));
+
       this.spacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-      //var menuMusic = this.sound.add('menuMusic');
-      //menuMusic.play();
+      
 
       pads = this.input.gamepad.gamepads;
 
@@ -352,7 +368,7 @@ class Scene1 extends Phaser.Scene {
           { key: 'reload18' },
           { key: 'reload19' },
         ],
-        frameRate: 20,
+        frameRate: 10,
         repeat: 0
       });
       this.anims.create({
@@ -368,7 +384,6 @@ class Scene1 extends Phaser.Scene {
     }
 
     startGame(){
-      //menuMusic.stop();
       this.scene.start('playGame');
     }
 
